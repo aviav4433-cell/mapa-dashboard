@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAPA — Dashboard</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #060A10;
+  --surface: #0D1421;
+  --surface2: #121929;
+  --border: #1E2A3A;
+  --border2: #243044;
+  --blue: #2563EB;
+  --blue-light: #3B82F6;
+  --blue-glow: rgba(37,99,235,0.15);
+  --text: #E8EDF5;
+  --text-muted: #6B7A95;
+  --text-dim: #3D4F6B;
+  --red: #EF4444;
+  --red-bg: #1A0A0A;
+  --yellow: #F59E0B;
+  --yellow-bg: #1A1400;
+  --green: #10B981;
+  --green-bg: #081A12;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 14px;
+  overflow-x: hidden;
+}
+
+/* ── LOGIN ── */
+#loginPage {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.4s ease;
+}
+#loginPage.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.login-wrap {
+  width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px 40px;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(37,99,235,0.08);
+}
+
+.login-icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #1D4ED8, #2563EB);
+  border-radius: 16px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(37,99,235,0.3);
+}
+
+.login-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+
+.login-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 36px;
+}
+
+.pass-wrap {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.pass-wrap input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: var(--text);
+  font-size: 16px;
+  text-align: center;
+  letter-spacing: 5px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.pass-wrap input::placeholder { letter-spacing: 1px; font-size: 13px; color: var(--text-dim); }
+.pass-wrap input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-glow); }
+
+.login-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #1D4ED8, #2563EB);
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(37,99,235,0.3);
+}
+.login-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,0.4); }
+.login-btn:active { transform: scale(0.98); }
+
+.login-err {
+  font-size: 12px;
+  color: var(--red);
+  margin-top: 10px;
+  min-height: 18px;
+}
+
+/* ── DASHBOARD ── */
+#dashPage {
+  display: none;
+  min-height: 100vh;
+}
+
+#dashPage.active { display: block; }
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #1D4ED8, #2563EB);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  font-size: 15px;
+}
+
+.brand-name { font-size: 16px; font-weight: 600; color: var(--text); }
+.brand-sub { font-size: 11px; color: var(--text-muted); }
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.refresh-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  transition: border-color 0.2s, color 0.2s;
+}
+.refresh-btn:hover { border-color: var(--blue-light); color: var(--blue-light); }
+
+#dateLabel { font-size: 12px; color: var(--text-muted); }
+
+/* ── MAIN CONTENT ── */
+.dash-body {
+  padding: 24px 28px 32px;
+}
+
+/* ── KPI GRID ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+@media(max-width:900px){ .kpi-grid { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:500px){ .kpi-grid { grid-template-columns: 1fr; } }
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.1s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 3px;
+  height: 100%;
+  border-radius: 0 14px 14px 0;
+  background: var(--accent, var(--blue));
+  opacity: 0.7;
+}
+.kpi-card:hover {
+  border-color: var(--accent, var(--blue));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.kpi-card:active { transform: scale(0.98); }
+
+.kpi-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.kpi-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.kpi-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--accent-bg, var(--blue-glow));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.kpi-value {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--accent, var(--text));
+  line-height: 1;
+  margin-bottom: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.kpi-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* ── PANELS ── */
+.panels-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+@media(max-width:800px){ .panels-row { grid-template-columns: 1fr; } }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.panel-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ── ORDER ROWS ── */
+.order-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.order-row:hover { background: #172236; border-color: var(--blue); }
+.order-row:last-child { margin-bottom: 0; }
+
+.order-indicator {
+  width: 3px;
+  height: 36px;
+  border-radius: 2px;
+  margin-left: 10px;
+  flex-shrink: 0;
+}
+
+.order-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.order-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+.badge {
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.badge-red { background: var(--red-bg); color: var(--red); border: 1px solid #3D1010; }
+.badge-blue { background: rgba(37,99,235,0.1); color: var(--blue-light); border: 1px solid #1E3A6E; }
+.badge-yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid #3D2E00; }
+.badge-green { background: var(--green-bg); color: var(--green); border: 1px solid #0D3D22; }
+
+/* ── STAT ROWS ── */
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+  border-radius: 4px;
+  padding-right: 4px;
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-row:hover { background: var(--surface2); }
+.stat-label { font-size: 12px; color: var(--text-muted); }
+.stat-value { font-size: 14px; font-weight: 600; }
+
+/* ── DRIVERS ── */
+.drivers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.driver-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.driver-card:hover { border-color: var(--blue); }
+
+.driver-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  margin: 0 auto 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.driver-name { font-size: 11px; font-weight: 500; color: var(--text); }
+.driver-status { font-size: 10px; margin-top: 2px; }
+
+/* ── INVENTORY BARS ── */
+.inv-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.inv-row:last-child { margin-bottom: 0; }
+.inv-label { font-size: 12px; color: var(--text-muted); width: 100px; flex-shrink: 0; text-align: right; }
+.inv-bar-bg { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.inv-bar { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+.inv-val { font-size: 12px; width: 35px; text-align: left; flex-shrink: 0; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  padding: 20px;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 80vh;
+  overflow-y: auto;
+  transform: translateY(16px);
+  transition: transform 0.2s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+
+.modal::-webkit-scrollbar { width: 4px; }
+.modal::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.modal-head {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.modal-title { font-size: 16px; font-weight: 600; }
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+}
+.modal-close:hover { color: var(--text); background: var(--surface2); }
+
+.modal-body { padding: 20px 24px; }
+
+.modal-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.modal-kpi {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.modal-kpi-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+.modal-kpi-val { font-size: 18px; font-weight: 600; }
+
+.modal-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.modal-table th {
+  padding: 8px 10px;
+  text-align: right;
+  color: var(--text-muted);
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+.modal-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.modal-table tr:last-child td { border-bottom: none; }
+
+/* ── LOADING ── */
+.loading-wrap {
+  text-align: center;
+  padding: 80px 20px;
+}
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── SECTION DIVIDER ── */
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="loginPage">
+  <div class="login-wrap">
+    <div class="login-icon">M</div>
+    <div class="login-title">MAPA</div>
+    <div class="login-sub">מערכת ניהול השכרת מפות ומפיות</div>
+    <div class="pass-wrap">
+      <input type="password" id="passInput" placeholder="הכנס סיסמה" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="login-btn" onclick="login()">כניסה למערכת</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div id="dashPage">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon">M</div>
+      <div>
+        <div class="brand-name">MAPA Dashboard</div>
+        <div class="brand-sub">ניהול השכרת מפות ומפיות</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span id="dateLabel"></span>
+      <button class="refresh-btn" onclick="loadData()">↻ רענן</button>
+      <div class="live-badge"><div class="live-dot"></div>Live</div>
+    </div>
+  </div>
+
+  <div class="dash-body" id="dashBody">
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      <div style="color:var(--text-muted)">טוען נתונים...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL ══ -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle"></div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const PASSWORD = "MAPA2026";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8BqlL6Cg7lynZ4CDLPVVUtLz3Km2wD_x-xKawaDBomUDWzgCUQWp7loUK26B3ka9v/exec";
+let RAW = {};
+
+// ── LOGIN ──
+function login() {
+  const val = document.getElementById("passInput").value.trim();
+  if (!val) { document.getElementById("loginErr").textContent = "הכנס סיסמה"; return; }
+  if (val !== PASSWORD) { document.getElementById("loginErr").textContent = "סיסמה שגויה"; document.getElementById("passInput").value = ""; return; }
+  const lp = document.getElementById("loginPage");
+  lp.classList.add("hide");
+  setTimeout(() => { lp.style.display = "none"; }, 400);
+  document.getElementById("dashPage").classList.add("active");
+  setDate();
+  loadData();
+}
+
+// ── DATE ──
+function setDate() {
+  const d = new Date();
+  const days = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+  const months = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+  document.getElementById("dateLabel").textContent = "יום " + days[d.getDay()] + " " + d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
+}
+
+// ── LOAD DATA ──
+function loadData() {
+  const cb = "cb" + Math.random().toString(36).slice(2);
+  const s = document.createElement("script");
+  const timer = setTimeout(() => {
+    delete window[cb];
+    if (s.parentNode) document.body.removeChild(s);
+    showError("שגיאת חיבור — בדוק חיבור לאינטרנט");
+  }, 15000);
+  window[cb] = function(data) {
+    clearTimeout(timer);
+    delete window[cb];
+    if (s.parentNode) document.body.removeChild(s);
+    RAW = data;
+    renderDash(data);
+  };
+  s.onerror = function() {
+    clearTimeout(timer);
+    delete window[cb];
+    showError("שגיאת חיבור לשרת");
+  };
+  s.src = SCRIPT_URL + "?callback=" + cb;
+  document.body.appendChild(s);
+}
+
+function showError(msg) {
+  document.getElementById("dashBody").innerHTML = '<div style="text-align:center;padding:80px;color:var(--red)">' + msg + '</div>';
+}
+
+// ── HELPERS ──
+const fmt = n => Number(n||0).toLocaleString("he-IL");
+const fmtDate = d => { if (!d) return "—"; const dt = new Date(d); return isNaN(dt) ? String(d) : dt.toLocaleDateString("he-IL"); };
+
+// ── RENDER ──
+function renderDash(d) {
+  const inv = d.inventory || [];
+  const drivers = d.drivers || [];
+  const out = d.outList || [];
+  const late = d.lateList || [];
+  const totalInv = inv.reduce((a,r) => a + (Number(r.total)||0), 0) || 1;
+  const atClient = inv.reduce((a,r) => a + (Number(r.atClient)||0), 0);
+  const packed = inv.reduce((a,r) => a + (Number(r.packed)||0), 0);
+  const damaged = inv.reduce((a,r) => a + (Number(r.damaged)||0), 0);
+
+  document.getElementById("dashBody").innerHTML = `
+
+    <div class="section-label">סיכום תפעולי</div>
+    <div class="kpi-grid">
+      ${kpiCard("יוצאות היום", d.todayShipments||0, "🚚", "var(--blue-light)", "rgba(37,99,235,0.12)", "showModal('orders-today')")}
+      ${kpiCard("הזמנות באיחור", d.lateCount||0, "⚠", d.lateCount>0?"var(--red)":"var(--green)", d.lateCount>0?"rgba(239,68,68,0.1)":"rgba(16,185,129,0.1)", "showModal('late')")}
+      ${kpiCard("בחוץ סה\"כ", d.allOut||0, "📦", "var(--yellow)", "rgba(245,158,11,0.1)", "showModal('all-out')")}
+      ${kpiCard("נהגים פעילים", (d.driversActive||0)+"/"+drivers.length, "🚗", "var(--blue-light)", "rgba(37,99,235,0.12)", "showModal('drivers')")}
+    </div>
+
+    <div class="section-label">מלאי וכספים</div>
+    <div class="kpi-grid">
+      ${kpiCard("יחידות אצל לקוח", fmt(atClient), "📋", "var(--yellow)", "rgba(245,158,11,0.1)", "showModal('inventory')")}
+      ${kpiCard("זמין למשלוח", fmt(packed), "✅", "var(--green)", "rgba(16,185,129,0.1)", "showModal('inventory')")}
+      ${kpiCard("חובות פתוחים", "₪"+fmt(d.totalDebt||0), "💳", d.totalDebt>0?"var(--red)":"var(--green)", d.totalDebt>0?"rgba(239,68,68,0.1)":"rgba(16,185,129,0.1)", "showModal('finance')")}
+      ${kpiCard("הכנסות החודש", "₪"+fmt(d.monthRevenue||0), "📈", "var(--green)", "rgba(16,185,129,0.1)", "showModal('finance')")}
+    </div>
+
+    <div class="panels-row">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">הזמנות פעילות</div>
+            <div class="panel-sub">${out.length} הזמנות בשטח · ${late.length} באיחור</div>
+          </div>
+          <span class="badge badge-blue" style="cursor:pointer" onclick="showModal('all-out')">הכל ←</span>
+        </div>
+        ${out.slice(0,7).map(o => {
+          const isLate = Number(o.delay) > 0 || new Date(o.returnPlan) < new Date();
+          return `<div class="order-row" onclick="showOrderDetail(${JSON.stringify(o).replace(/"/g,'&quot;')})">
+            <div class="order-indicator" style="background:${isLate?'var(--red)':'var(--blue-light)'}"></div>
+            <div style="flex:1">
+              <div class="order-name">${o.client||"—"}</div>
+              <div class="order-meta">חזרה: ${fmtDate(o.returnPlan)}</div>
+            </div>
+            <span class="badge ${isLate?'badge-red':'badge-blue'}">${isLate?'⚠ '+o.delay+' ימי עיכוב':'בחוץ'}</span>
+          </div>`;
+        }).join("") || '<div style="color:var(--text-dim);text-align:center;padding:24px">אין הזמנות פעילות</div>'}
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">נהגים</div>
+            <span class="badge badge-blue" style="cursor:pointer" onclick="showModal('drivers')">פירוט ←</span>
+          </div>
+          <div class="drivers-grid">
+            ${drivers.slice(0,4).map(dr => {
+              const active = dr.active===true||dr.active==="כן"||dr.active==="TRUE";
+              const init = (dr.name||"נ נ").split(" ").map(w=>w[0]).join("").slice(0,2);
+              return `<div class="driver-card" onclick="showModal('drivers')">
+                <div class="driver-avatar" style="background:${active?'rgba(37,99,235,0.2)':'var(--surface)'};color:${active?'var(--blue-light)':'var(--text-dim)'}">
+                  ${init}
+                </div>
+                <div class="driver-name">${(dr.name||"").split(" ")[0]}</div>
+                <div class="driver-status" style="color:${active?'var(--green)':'var(--text-dim)'}">${active?"פעיל":"לא פעיל"}</div>
+              </div>`;
+            }).join("")}
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">כספים</div>
+            <span class="badge badge-blue" style="cursor:pointer" onclick="showModal('finance')">פירוט ←</span>
+          </div>
+          <div class="stat-row" onclick="showModal('finance')">
+            <span class="stat-label">הכנסות החודש</span>
+            <span class="stat-value" style="color:var(--green)">₪${fmt(d.monthRevenue||0)}</span>
+          </div>
+          <div class="stat-row" onclick="showModal('finance')">
+            <span class="stat-label">חובות פתוחים</span>
+            <span class="stat-value" style="color:${(d.totalDebt||0)>0?'var(--red)':'var(--green)'}">₪${fmt(d.totalDebt||0)}</span>
+          </div>
+          <div class="stat-row" onclick="showModal('finance')">
+            <span class="stat-label">הזמנות ממתינות לחיוב</span>
+            <span class="stat-value" style="color:var(--yellow)">${out.length}</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">מצב מלאי</div>
+            <span class="badge badge-blue" style="cursor:pointer" onclick="showModal('inventory')">פירוט ←</span>
+          </div>
+          ${[
+            {label:"אצל לקוח", val:atClient, pct:Math.round(atClient/totalInv*100), color:"var(--yellow)"},
+            {label:"זמין", val:packed, pct:Math.round(packed/totalInv*100), color:"var(--green)"},
+            {label:"פגום", val:damaged, pct:Math.round(damaged/totalInv*100), color:"var(--red)"},
+          ].map(r => `<div class="inv-row" onclick="showModal('inventory')">
+            <div class="inv-label">${r.label}</div>
+            <div class="inv-bar-bg"><div class="inv-bar" style="width:${r.pct}%;background:${r.color}"></div></div>
+            <div class="inv-val" style="color:${r.color}">${r.pct}%</div>
+          </div>`).join("")}
+        </div>
+      </div>
+    </div>`;
+}
+
+function kpiCard(label, val, icon, color, bg, onclick) {
+  return `<div class="kpi-card" style="--accent:${color};--accent-bg:${bg}" onclick="${onclick}">
+    <div class="kpi-top">
+      <div class="kpi-label">${label}</div>
+      <div class="kpi-icon">${icon}</div>
+    </div>
+    <div class="kpi-value" style="color:${color}">${val}</div>
+    <div class="kpi-sub">לחץ לפירוט →</div>
+  </div>`;
+}
+
+// ── MODALS ──
+function openModal(title, html) {
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalBody").innerHTML = html;
+  document.getElementById("modalOverlay").classList.add("open");
+}
+
+function closeModal() {
+  document.getElementById("modalOverlay").classList.remove("open");
+}
+
+function showOrderDetail(o) {
+  const isLate = Number(o.delay) > 0;
+  openModal("פירוט הזמנה — " + (o.client||"לקוח"), `
+    <div class="modal-kpi-grid">
+      <div class="modal-kpi"><div class="modal-kpi-label">לקוח</div><div class="modal-kpi-val">${o.client||"—"}</div></div>
+      <div class="modal-kpi"><div class="modal-kpi-label">חזרה מתוכנן</div><div class="modal-kpi-val">${fmtDate(o.returnPlan)}</div></div>
+      <div class="modal-kpi"><div class="modal-kpi-label">ימי עיכוב</div><div class="modal-kpi-val" style="color:${isLate?'var(--red)':'var(--green)'}">${o.delay||0}</div></div>
+    </div>
+    ${isLate ? `<div style="background:var(--red-bg);border:1px solid #3D1010;border-radius:10px;padding:12px 16px;color:var(--red);font-size:13px">⚠ הזמנה זו באיחור של ${o.delay} ימים — נדרש טיפול</div>` : ''}
+  `);
+}
+
+function showModal(type) {
+  const d = RAW;
+  const out = d.outList || [];
+  const late = d.lateList || [];
+  const inv = d.inventory || [];
+  const drivers = d.drivers || [];
+
+  if (type === 'late' || type === 'all-out') {
+    const list = type === 'late' ? late : out;
+    const title = type === 'late' ? 'הזמנות באיחור' : 'כל ההזמנות הפעילות';
+    openModal(title, `
+      <table class="modal-table">
+        <thead><tr><th>לקוח</th><th>חזרה מתוכנן</th><th>עיכוב</th><th>סטטוס</th></tr></thead>
+        <tbody>${list.map(o => {
+          const isLate = Number(o.delay) > 0 || new Date(o.returnPlan) < new Date();
+          return `<tr style="cursor:pointer" onclick="showOrderDetail(${JSON.stringify(o).replace(/"/g,'&quot;')})">
+            <td><strong>${o.client||"—"}</strong></td>
+            <td>${fmtDate(o.returnPlan)}</td>
+            <td style="color:${Number(o.delay)>0?'var(--red)':'var(--text-muted)'}">${o.delay||0}</td>
+            <td><span class="badge ${isLate?'badge-red':'badge-blue'}">${isLate?'באיחור':'בחוץ'}</span></td>
+          </tr>`;
+        }).join("") || '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px">אין נתונים</td></tr>'}</tbody>
+      </table>`);
+  }
+
+  else if (type === 'orders-today') {
+    const todayStr = new Date().toDateString();
+    openModal('הזמנות יוצאות היום', `
+      <table class="modal-table">
+        <thead><tr><th>לקוח</th><th>חזרה מתוכנן</th><th>סטטוס</th></tr></thead>
+        <tbody>${out.filter(o => new Date(o.returnPlan).toDateString()===todayStr).map(o => `
+          <tr><td><strong>${o.client||"—"}</strong></td><td>${fmtDate(o.returnPlan)}</td>
+          <td><span class="badge badge-yellow">יוצא היום</span></td></tr>`
+        ).join("") || '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:20px">אין הזמנות יוצאות היום</td></tr>'}</tbody>
+      </table>`);
+  }
+
+  else if (type === 'drivers') {
+    openModal('נהגים — פירוט', `
+      <table class="modal-table">
+        <thead><tr><th>שם</th><th>טלפון</th><th>רכב</th><th>איזור</th><th>משלוחים</th><th>סטטוס</th></tr></thead>
+        <tbody>${drivers.map(dr => {
+          const active = dr.active===true||dr.active==="כן"||dr.active==="TRUE";
+          return `<tr>
+            <td><strong>${dr.name||"—"}</strong></td>
+            <td>${dr.phone||"—"}</td>
+            <td>${dr.vehicle||"—"}</td>
+            <td>${dr.zone||"—"}</td>
+            <td>${dr.totalDeliveries||"—"}</td>
+            <td><span class="badge ${active?'badge-green':'badge-red'}">${active?"פעיל":"לא פעיל"}</span></td>
+          </tr>`;
+        }).join("")}</tbody>
+      </table>`);
+  }
+
+  else if (type === 'inventory') {
+    openModal('מלאי — פירוט מלא', `
+      <div class="modal-kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="modal-kpi"><div class="modal-kpi-label">סה"כ</div><div class="modal-kpi-val">${fmt(inv.reduce((a,r)=>a+(Number(r.total)||0),0))}</div></div>
+        <div class="modal-kpi"><div class="modal-kpi-label">אצל לקוח</div><div class="modal-kpi-val" style="color:var(--yellow)">${fmt(inv.reduce((a,r)=>a+(Number(r.atClient)||0),0))}</div></div>
+        <div class="modal-kpi"><div class="modal-kpi-label">ארוז</div><div class="modal-kpi-val" style="color:var(--green)">${fmt(inv.reduce((a,r)=>a+(Number(r.packed)||0),0))}</div></div>
+        <div class="modal-kpi"><div class="modal-kpi-label">פגום</div><div class="modal-kpi-val" style="color:var(--red)">${fmt(inv.reduce((a,r)=>a+(Number(r.damaged)||0),0))}</div></div>
+      </div>
+      <table class="modal-table">
+        <thead><tr><th>שם פריט</th><th>סוג</th><th>אצל לקוח</th><th>מכובס</th><th>ארוז</th><th>סה"כ</th><th>פגום</th></tr></thead>
+        <tbody>${inv.map(r => `<tr>
+          <td><strong>${r.name||"—"}</strong></td>
+          <td>${r.type||"—"}</td>
+          <td>${fmt(r.atClient)}</td>
+          <td>${fmt(r.clean)}</td>
+          <td>${fmt(r.packed)}</td>
+          <td><strong>${fmt(r.total)}</strong></td>
+          <td style="color:${Number(r.damaged)>0?'var(--red)':'var(--text-muted)'}">${fmt(r.damaged)}</td>
+        </tr>`).join("")}</tbody>
+      </table>`);
+  }
+
+  else if (type === 'finance') {
+    openModal('כספים — פירוט', `
+      <div class="modal-kpi-grid">
+        <div class="modal-kpi"><div class="modal-kpi-label">הכנסות החודש</div><div class="modal-kpi-val" style="color:var(--green)">₪${fmt(d.monthRevenue||0)}</div></div>
+        <div class="modal-kpi"><div class="modal-kpi-label">חובות פתוחים</div><div class="modal-kpi-val" style="color:var(--red)">₪${fmt(d.totalDebt||0)}</div></div>
+        <div class="modal-kpi"><div class="modal-kpi-label">ממתינות לחיוב</div><div class="modal-kpi-val" style="color:var(--yellow)">${out.length}</div></div>
+      </div>
+      <table class="modal-table">
+        <thead><tr><th>לקוח</th><th>חזרה מתוכנן</th><th>סה"כ לחיוב</th><th>סטטוס</th></tr></thead>
+        <tbody>${out.map(o => `<tr style="cursor:pointer" onclick="showOrderDetail(${JSON.stringify(o).replace(/"/g,'&quot;')})">
+          <td><strong>${o.client||"—"}</strong></td>
+          <td>${fmtDate(o.returnPlan)}</td>
+          <td>₪${fmt(o.total||0)}</td>
+          <td><span class="badge badge-yellow">ממתין</span></td>
+        </tr>`).join("")}</tbody>
+      </table>`);
+  }
+}
+</script>
+</body>
+</html>
